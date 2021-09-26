@@ -16,7 +16,7 @@ Requires:
 ### Installation
 Check it out:
 ```bash
-$ git clone https://github.com/takenl2021/Python-Prolog-Interpreter.git
+$ git clone https://github.com/takenl2021/python_prolog_interpreter.git
 ```
 
 ### Try it out
