@@ -15,6 +15,6 @@ setup(
     ],
     install_requires=[
         'regex'
-    ]
+    ],
     packages=['prologpy'],  # Required
 )
