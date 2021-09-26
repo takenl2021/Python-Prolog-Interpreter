@@ -3,11 +3,9 @@ from prologpy.solver import Solver
 def test_simple_goal_query():
 
     rules_text = """
-
         brother_sister(joe, monica).
         brother_sister(eric, erica).
         brother_sister(jim, rebecca).
-
     """
 
     goal_text = """
@@ -22,18 +20,14 @@ def test_simple_goal_query():
 def test_multi_variable_solutions():
 
     rules_text = """
-
         is_tall(jack, yes).
         is_tall(eric, no).
         is_tall(johnny, yes).
         is_tall(mark, no).
-
     """
 
     query_text = """
-
         is_tall(Y, yes)
-
     """
 
     solver = Solver(rules_text)
@@ -48,22 +42,18 @@ def test_multi_variable_solutions():
 def test_find_bad_dog():
 
     rules_text = """
-        
         bad_dog(Dog) :-
            bites(Dog, Person),
            is_person(Person),
            is_dog(Dog).
-        
+
         bites(fido, postman).
         is_person(postman).
         is_dog(fido).
-
     """
 
     query_text = """
-
         bad_dog( X )
-
     """
 
     solver = Solver(rules_text)
