@@ -1,16 +1,51 @@
 import re
 from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule
-
+import regex
 
 TOKEN_REGEX = r"[A-Za-z0-9_]+|:\-|[()\.,]"
+# Atom大文字小文字アンダーバーに加えて日本語の文字種
 ATOM_NAME_REGEX = r"^[A-Za-z0-9_]+$"
-VARIABLE_REGEX = r"^[A-Z_][A-Za-z0-9_]*$"
+ATOM_NAME_REGEX_JAPANESE = r"^[A-Za-z0-9_ａ-ｚＡ-Ｚ０-９，．、。\p{Han}\p{Katakana}\p{Hiragana}]+$"
+VARIABLE_REGEX = r"^[A-Z_][A-Za-z0-9_]*$"   # 変数大文字 _などからスタート
+VARIABLE_REGEX_JP = r"^[A-Z_].*$"           # 変数は大文字または _ からの文字
 
 # Regex to parse comment strings. The first group captures quoted strings (
 # double and single). The second group captures regular comments ('%' for
 # single-line or '/* */' for multi-line)
 COMMENT_REGEX = r"(\".*?\"|\'.*?\')|(/\*.*?\*/|%[^\r\n]*$)"
 
+def parse_tokens_from_string_jp(input_text):
+    # Convert the input text into a list of tokens we can iterate over / process
+
+    no_comment_text = remove_comments(input_text)
+    no_comment_text = no_comment_text.strip()
+    # . で分割．:- で分割． => すべて pred(X,Y),a(X),b(Y).  の形
+    def make_tokens (text):
+        text = "".join(text.split())  #文字列の空白を消す
+        parts = text.split(':-') #2文字なので先に切る．ただし切ってから加える
+        parts = [x + ':-' for x in parts]
+        parts[-1] = parts[-1].replace(':-','')
+        out = []
+        p = re.compile(r'[().,|\[\]]')
+        for part in parts:
+            out_part = ''
+            for c in part:
+                #if previous_character == ')' and p2.match(c):   # ), などにマッチした
+                #    out.append('') # ), と ). のときに '' 空文字入れる
+                #    out.append(c)  #区切りも保存
+                #    out_part = ''
+                if p.match(c):  #1文字の区切りにマッチした
+                    if out_part != '':
+                        out.append(out_part)
+                    out.append(c)  #区切りも保存
+                    out_part = ''  #必ず最後はここを通る
+                else:
+                    out_part += c #なにもないと連結 
+            if out_part != '': #末尾に:- がくる時なので足す
+                out.append(out_part)
+        return out #もしここで out_partになにか残ってたらダメ
+    token_out = make_tokens(no_comment_text)
+    return token_out
 
 def remove_comments(input_text):
     """Return the input text string with all of the comments removed from it"""
@@ -46,7 +81,7 @@ class Parser(object):
     """
 
     def __init__(self, input_text):
-        self._tokens = parse_tokens_from_string(input_text)
+        self._tokens = parse_tokens_from_string_jp(input_text)
         self._scope = None
 
     def parse_rules(self):
@@ -69,7 +104,7 @@ class Parser(object):
 
     def _parse_atom(self):
         name = self._pop_current()
-        if re.match(ATOM_NAME_REGEX, name) is None:
+        if regex.compile(ATOM_NAME_REGEX_JAPANESE).fullmatch(name) is False:
             raise Exception("Invalid Atom Name: " + str(name))
         return name
 
@@ -77,6 +112,9 @@ class Parser(object):
         # If we encounter an opening parenthesis, we know we're dealing with a
         # conjunction, so we process the list of arguments until we hit a closing
         # parenthesis and return the conjunction object.
+
+        # ここで単なる述語または定数(atom) か変数を分けている
+
         if self._current == "(":
             self._pop_current()
             arguments = self._parse_arguments()
@@ -123,7 +161,7 @@ class Parser(object):
         self._pop_current()
         return arguments
 
-    def _parse_rule(self):
+    def _parse_rule(self): #バラバラlistにした入力ルールを分類
 
         head = self._parse_term()
 

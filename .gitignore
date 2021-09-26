@@ -2,3 +2,5 @@
 other/
 venv/
 __pycache__/
+.pdf
+.html

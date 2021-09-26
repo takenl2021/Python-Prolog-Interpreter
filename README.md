@@ -1,4 +1,4 @@
-# prologpy
+# prologpy Japanese Ver
 
 This is a mini-Prolog Interpreter written in a few lines of Python 3. It runs a limited subset of Prolog and uses backtracking and generators in order to perform its magic.  The inspiration for creating this, with full info and detailed writeup on implementation, can be found through [this link](https://curiosity-driven.org/prolog-interpreter).
 
@@ -16,7 +16,7 @@ Requires:
 ### Installation
 Check it out:
 ```bash
-$ git clone https://github.com/photonlines/Python-Prolog-Interpreter.git
+$ git clone https://github.com/takenl2021/Python-Prolog-Interpreter.git
 ```
 
 ### Try it out
