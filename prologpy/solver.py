@@ -1,5 +1,5 @@
-from prologpy.interpreter import Database, Variable
-from prologpy.parser import Parser
+from .interpreter import Database, Variable
+from .parser import Parser
 from collections import defaultdict
 
 
